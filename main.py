@@ -11,6 +11,7 @@ class Weather:
 
     def get_weather_json(self):
         url = self.url_builder()
+        print(url)
         response = requests.get(url)
         return response.json()
 
@@ -24,3 +25,10 @@ class Weather:
 
     def weather_check(self):
         jason = self.get_weather_json()
+        locy = jason["name"]
+        tempy = round(jason["main"]["temp"]-273.15,2)
+        print(f"Location: {locy}\nTemp: {tempy}")
+        return f"Location: {locy}\nTemp: {tempy}"
+
+# app = Weather(environ.get("WEATHER_API"))
+# app.weather_check()

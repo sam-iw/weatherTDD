@@ -1,15 +1,19 @@
 from main import Weather
 from unittest.mock import patch
 import unittest
+from os import environ
 
 class TestWeather(unittest.TestCase):
 
     def setUp(self):
         self.app = Weather("key")
 
-    def test_api_integration(self):
+    @patch("builtins.input")
+    def test_api_integration(self,landon):
         # arrange
-        expected_response = "200"
+        landon.side_effect = ["London"]
+        self.app = Weather(environ.get("WEATHER_API"))
+        expected_response = 200
         #act
         actual = self.app.get_weather_json() 
         # assert
@@ -42,12 +46,11 @@ class TestWeather(unittest.TestCase):
         # arrange
         urly.return_value = "https://api.openweathermap.org/data/2.5/weather?q=London&appid=key"
         inputy.return_value = "London"
-        jason.return_value = {"main": {"temp": 284.47}}
-        expected = f"Location: London\nTemp: 284.47"
+        jason.return_value = {"main": {"temp": 284.47}, "name": "London"}
+        expected = f"Location: London\nTemp: 11.32"
 
         # actual
         actual = self.app.weather_check()
 
         # assert
         self.assertEqual(expected, actual)
-        
