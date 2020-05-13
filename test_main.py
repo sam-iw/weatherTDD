@@ -16,11 +16,20 @@ class TestWeather(unittest.TestCase):
         self.assertEqual(expected_response, actual["cod"])
 
     @patch("builtins.input")
-    def test_get_usinput(self, inputy):
+    def test_get_user_input(self, inputy):
         # arrange
-        inputy.side_effect = ["London"]
-        expected = "London"
+        inputy.side_effect = ["Cairo"]
+        expected = "Cairo"
         # act
         actual = self.app.get_user_input()
         # assert
         self.assertEqual(expected, actual)
+
+    def test_url_builder(self):
+        # arrange
+        expected = "https://api.openweathermap.org/data/2.5/weather?q=London&appid=key"
+        # act
+        actual = self.app.url_builder("London")
+        # assert
+        self.assertEqual(expected, actual)
+    
