@@ -46,11 +46,36 @@ class TestWeather(unittest.TestCase):
         # arrange
         urly.return_value = "https://api.openweathermap.org/data/2.5/weather?q=London&appid=key"
         inputy.return_value = "London"
-        jason.return_value = {"main": {"temp": 284.47}, "name": "London"}
-        expected = f"Location: London\nTemp: 11.32"
+        jason.return_value = {"main": {"temp": 284.47}, "name": "London","wind": {"speed": 1000.11, "deg": 10}}
+        expected = f"Location: London\nTemp: 11.32\nWind: 2237.25; northerly"
 
         # actual
         actual = self.app.weather_check()
 
         # assert
         self.assertEqual(expected, actual)
+
+    def test_wind_dir_n(self):
+        expected = "northerly"
+        actual = self.app.get_wind_dir(11,11)
+        self.assertEqual(expected,actual)
+
+    def test_wind_dir_e(self):
+        expected = "easterly"
+        actual = self.app.get_wind_dir(91,91)
+        self.assertEqual(expected,actual)
+
+    def test_wind_dir_w(self):
+        expected = "westerly"
+        actual = self.app.get_wind_dir(271,271)
+        self.assertEqual(expected,actual)
+    
+    def test_wind_dir_s(self):
+        expected = "southerly"
+        actual = self.app.get_wind_dir(180,180000000)
+        self.assertEqual(expected,actual)
+
+    def test_no_wind(self):
+        expected = "calm bruv"
+        actual = self.app.get_wind_dir(35,0)
+        self.assertEqual(expected,actual)
