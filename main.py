@@ -1,5 +1,4 @@
 import requests
-import json
 from os import environ
 
 url = "https://api.openweathermap.org/data/2.5/weather?"
@@ -11,9 +10,9 @@ class Weather:
 
     def get_weather_json(self):
         url = self.url_builder()
-        print(url)
-        response = requests.get(url)
-        return response.json()
+        response = requests.get(url).json()
+        # print(response)
+        return response
 
     def get_user_input(self):
         location = input("were r u lookin 4 m8? ")
@@ -41,10 +40,17 @@ class Weather:
         tempy = round(jason["main"]["temp"]-273.15,2)
         windy = round(jason["wind"]["speed"]*2.237,2)
         windy_degz = jason["wind"]["deg"]
+        sunrise = jason["sys"]["sunrise"]
+        sunset = jason["sys"]["sunset"]
+        perc = self.day_perc(sunrise, sunset)
         diry = self.get_wind_dir(windy_degz,windy)
-        whether = f"Location: {locy}\nTemp: {tempy}\nWind: {windy}; {diry}"
+        whether = f"Location: {locy}\nTemp: {tempy}\nWind: {windy}; {diry}\nPercentage Daylight: {perc}"
         print(whether)
         return whether
+
+    def day_perc(self, sunrise, sunset):
+        return f"{round((sunset - sunrise)/(24*60*60)*100, 2)}%"
+
 
     
          

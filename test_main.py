@@ -1,6 +1,7 @@
 from main import Weather
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 import unittest
+import requests
 from os import environ
 
 class TestWeather(unittest.TestCase):
@@ -18,7 +19,7 @@ class TestWeather(unittest.TestCase):
         actual = self.app.get_weather_json() 
         # assert
         self.assertEqual(expected_response, actual["cod"])
-
+        
     @patch("builtins.input")
     def test_get_user_input(self, inputy):
         # arrange
@@ -29,7 +30,7 @@ class TestWeather(unittest.TestCase):
         # assert
         self.assertEqual(expected, actual)
 
-    @patch("main.Weather.get_user_input", return_value=unittest.mock)
+    @patch("main.Weather.get_user_input", return_value=unittest.mock)    
     def test_url_builder(self, inputy):
         # arrange
         inputy.return_value = "London"
@@ -38,22 +39,24 @@ class TestWeather(unittest.TestCase):
         actual = self.app.url_builder()
         # assert
         self.assertEqual(expected, actual)
+        inputy.assert_called_once()
     
-    @patch("main.Weather.url_builder", return_value=unittest.mock)
-    @patch("main.Weather.get_user_input", return_value=unittest.mock)
+    @patch("builtins.print", return_value=None)
     @patch("main.Weather.get_weather_json", return_value=unittest.mock)
-    def test_weather_check(self, jason, inputy, urly):
+    @patch("main.Weather.get_wind_dir", return_value=unittest.mock)
+    @patch("main.Weather.day_perc", return_value=unittest.mock)
+    def test_weather_check(self, day, dire, jason, printy):
         # arrange
-        urly.return_value = "https://api.openweathermap.org/data/2.5/weather?q=London&appid=key"
-        inputy.return_value = "London"
-        jason.return_value = {"main": {"temp": 284.47}, "name": "London","wind": {"speed": 1000.11, "deg": 10}}
-        expected = f"Location: London\nTemp: 11.32\nWind: 2237.25; northerly"
-
+        jason.return_value = {"main": {"temp": 284.47}, "sys": {"sunrise": 5,"sunset": 15894854}, "name": "London","wind": {"speed": 1000.11, "deg": 10}}
+        dire.return_value = "northerly"
+        day.return_value = "12.3%"
+        expected = f"Location: London\nTemp: 11.32\nWind: 2237.25; northerly\nPercentage Daylight: 12.3%"
         # actual
         actual = self.app.weather_check()
-
         # assert
         self.assertEqual(expected, actual)
+        jason.assert_called_once()
+        dire.assert_called_once_with(10, 2237.25)
 
     def test_wind_dir_n(self):
         expected = "northerly"
@@ -79,3 +82,27 @@ class TestWeather(unittest.TestCase):
         expected = "calm bruv"
         actual = self.app.get_wind_dir(35,0)
         self.assertEqual(expected,actual)
+
+    @patch("main.Weather.url_builder", return_value=unittest.mock)
+    @patch("main.requests.Response", return_value=unittest.mock)
+    @patch("main.requests.get", return_value=unittest.mock)
+    def test_get_weather_jason(self, get, repondez, urly):
+        expected = {"cod": 200}
+        urly.return_value = "urly"
+        get.return_value = repondez
+        repondez.json.return_value = {"cod": 200}
+        actual = self.app.get_weather_json()
+        self.assertEqual(expected, actual)
+        urly.assert_called_once()
+        get.assert_called_once_with("urly")
+
+    def test_day_perc(self):
+        expected = "64.9%"
+        actual = self.app.day_perc(1589429379, 1589485454)
+        self.assertEqual(expected, actual)
+#  def get_weather_json(self):
+#         url = self.url_builder()
+#         response = requests.get(url).json # Returns a requests.Response class 
+#         .json() # returns json
+#         print(response)
+#         return response
