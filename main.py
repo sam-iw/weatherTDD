@@ -1,5 +1,6 @@
 import requests
 from os import environ
+from datetime import datetime
 
 url = "https://api.openweathermap.org/data/2.5/weather?"
 
@@ -44,16 +45,36 @@ class Weather:
         sunset = jason["sys"]["sunset"]
         perc = self.day_perc(sunrise, sunset)
         diry = self.get_wind_dir(windy_degz,windy)
-        whether = f"Location: {locy}\nTemp: {tempy}\nWind: {windy}; {diry}\nPercentage Daylight: {perc}"
+        sunny = self.sun_calc(sunrise, sunset)
+        whether = f"""Location: {locy}
+Temp: {tempy}
+Wind: {windy}; {diry}
+Sunrise: {sunny[0]}
+Sunset: {sunny[1]}
+Percentage Daylight: {perc}
+
+           |
+      \    |    /
+       \       /
+         ,d8b,           .,
+ (')-")_ 88888 ---   ;';'  ';'.
+('-  (. ')98P'      ';.,;    ,;
+ '-.(PjP)'    \       '.';.'
+           |   \
+           |
+           """
         print(whether)
         return whether
 
     def day_perc(self, sunrise, sunset):
         return f"{round((sunset - sunrise)/(24*60*60)*100, 2)}%"
 
+    def sun_calc(self, sunrise, sunset):
+        sunrise_time = datetime.fromtimestamp(sunrise).strftime('%X')
+        sunset_time = datetime.fromtimestamp(sunset).strftime('%X')
+        suntuple = (sunrise_time, sunset_time)
+        return suntuple
 
-    
-         
 
 # app = Weather(environ.get("WEATHER_API"))
 # app.weather_check()

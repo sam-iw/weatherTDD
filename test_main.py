@@ -47,10 +47,26 @@ class TestWeather(unittest.TestCase):
     @patch("main.Weather.day_perc", return_value=unittest.mock)
     def test_weather_check(self, day, dire, jason, printy):
         # arrange
-        jason.return_value = {"main": {"temp": 284.47}, "sys": {"sunrise": 5,"sunset": 15894854}, "name": "London","wind": {"speed": 1000.11, "deg": 10}}
+        jason.return_value = {"main": {"temp": 284.47}, "sys": {"sunrise": 1589429379,"sunset": 1589485454}, "name": "London","wind": {"speed": 1000.11, "deg": 10}}
         dire.return_value = "northerly"
         day.return_value = "12.3%"
-        expected = f"Location: London\nTemp: 11.32\nWind: 2237.25; northerly\nPercentage Daylight: 12.3%"
+        expected = f"""Location: London
+Temp: 11.32
+Wind: 2237.25; northerly
+Sunrise: 05:09:39
+Sunset: 20:44:14
+Percentage Daylight: 12.3%
+
+           |
+      \    |    /
+       \       /
+         ,d8b,           .,
+ (')-")_ 88888 ---   ;';'  ';'.
+('-  (. ')98P'      ';.,;    ,;
+ '-.(PjP)'    \       '.';.'
+           |   \
+           |
+           """
         # actual
         actual = self.app.weather_check()
         # assert
@@ -100,9 +116,10 @@ class TestWeather(unittest.TestCase):
         expected = "64.9%"
         actual = self.app.day_perc(1589429379, 1589485454)
         self.assertEqual(expected, actual)
-#  def get_weather_json(self):
-#         url = self.url_builder()
-#         response = requests.get(url).json # Returns a requests.Response class 
-#         .json() # returns json
-#         print(response)
-#         return response
+
+    def test_sun_calc(self):
+        expected = ("05:09:39","20:44:14")
+        actual = self.app.sun_calc(1589429379, 1589485454)
+        self.assertEqual(expected, actual)
+
+
